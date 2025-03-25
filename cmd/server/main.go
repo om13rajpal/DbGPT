@@ -8,7 +8,9 @@ import (
 
 func main() {
 	config.InitConfig()
+
 	database.ConnectMongo()
+	database.ConnectPostgres()
 
 	router := routes.InitRoute()
 
