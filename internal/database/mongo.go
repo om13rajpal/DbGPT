@@ -10,6 +10,10 @@ import (
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
 
+var (
+	UserCollection *mongo.Collection
+)
+
 func ConnectMongo() {
 	clientOptions := options.Client().ApplyURI(config.MONGO_URI)
 
@@ -29,4 +33,6 @@ func ConnectMongo() {
 	}
 
 	fmt.Println("Connected to MongoDB!")
+
+	UserCollection = client.Database("dbgpt").Collection("users")
 }
