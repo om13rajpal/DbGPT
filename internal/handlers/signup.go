@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"math/rand"
 	"net/http"
 	"time"
 
@@ -12,46 +13,6 @@ import (
 )
 
 func SignupHandler(c *gin.Context) {
-	var user models.User
-
-	err := c.BindJSON(&user)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusBadRequest, gin.H{"status": false, "error": "Invalid request"})
-		return
-	}
-
-	hashedPassword, err := utils.HashPassword(user.Password)
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": false, "error": "Error hashing password"})
-		return
-	}
-
-	user.Password = string(hashedPassword)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	result, err := database.UserCollection.InsertOne(ctx, user)
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": false, "error": "Error creating user"})
-		return
-	}
-
-	go utils.SendMail(user.Email, "Welcome to DBGPT", "Thank you for signing up!")
-
-	token, err := utils.GenerateToken()
-
-	if err != nil {
-		c.IndentedJSON(http.StatusInternalServerError, gin.H{"status": false, "error": "Error generating token"})
-		return
-	}
-
-	c.IndentedJSON(http.StatusCreated, gin.H{"status": true, "message": "user signed up successfully", "data": result, "token": token})
-}
-
-func PosgresSignupHandler(c *gin.Context) {
 	var user models.User
 
 	err := c.BindJSON(&user)
@@ -70,8 +31,7 @@ func PosgresSignupHandler(c *gin.Context) {
 	hashedPassword, err := utils.HashPassword(user.Password)
 	if err != nil {
 		c.IndentedJSON(http.StatusInternalServerError, gin.H{
-			"status": false,
-
+			"status":  false,
 			"message": "Error hashing password",
 		})
 		return
@@ -94,6 +54,25 @@ func PosgresSignupHandler(c *gin.Context) {
 	}
 
 	go utils.SendMail(user.Email, "Welcome to DBGPT", "Thank you for signing up!")
+
+	query = `INSERT INTO otp (username, otp) VALUES ($1, $2) RETURNING id`
+	var otpId int
+
+	otp := rand.Intn(900000) + 100000
+
+	ctx, cancel = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	err = database.Pool.QueryRow(ctx, query, user.Username, otp).Scan(&otpId)
+	if err != nil {
+		c.IndentedJSON(http.StatusInternalServerError, gin.H{
+			"status":  false,
+			"message": "Error creating OTP",
+			"error":   err.Error(),
+		})
+		return
+	}
+
+	go utils.SendOTP(user.Email, otp)
 
 	token, err := utils.GenerateToken()
 	if err != nil {
