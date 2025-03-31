@@ -15,4 +15,6 @@ func main() {
 	router := routes.InitRoute()
 
 	router.Run(":" + config.PORT)
+
+	defer database.Pool.Close()
 }

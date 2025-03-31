@@ -15,5 +15,8 @@ func InitRoute() *gin.Engine {
 	r.POST("/login", handlers.LoginHandler)
 	r.POST("/signup", handlers.SignupHandler)
 
+	r.POST("/postgres/signup", handlers.PosgresSignupHandler)
+	r.POST("/postgres/login", handlers.PostgresLoginHandler)
+
 	return r
 }

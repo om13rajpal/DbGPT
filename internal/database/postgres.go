@@ -8,14 +8,10 @@ import (
 	"github.com/om13rajpal/dbgpt/config"
 )
 
-func ConnectPostgres() {
-	pool, err := pgxpool.New(context.Background(), config.POSTGRES_URI)
+var Pool *pgxpool.Pool
 
-	if err != nil {
-		fmt.Println("Error connecting to database")
-		panic(err)
-	}
+func ConnectPostgres() {
+	Pool, _ = pgxpool.New(context.Background(), config.POSTGRES_URI)
 
 	fmt.Println("Connected to postgres database")
-	defer pool.Close()
 }
