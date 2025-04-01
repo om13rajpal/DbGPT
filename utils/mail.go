@@ -6,9 +6,10 @@ import (
 	"fmt"
 )
 
-var d = gomail.NewDialer("smtp.gmail.com", 587, config.EMAIL, config.EMAIL_PASSWORD)
-
 func SendMail(to string, subject string, body string) error {
+
+	var d = gomail.NewDialer("smtp.gmail.com", 587, config.EMAIL, config.EMAIL_PASSWORD)
+
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", config.EMAIL)
@@ -24,6 +25,9 @@ func SendMail(to string, subject string, body string) error {
 }
 
 func SendOTP(to string, otp int) error {
+
+	var d = gomail.NewDialer("smtp.gmail.com", 587, config.EMAIL, config.EMAIL_PASSWORD)
+
 
 	m := gomail.NewMessage()
 	m.SetHeader("From", config.EMAIL)

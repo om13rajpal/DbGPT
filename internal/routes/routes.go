@@ -14,6 +14,7 @@ func InitRoute() *gin.Engine {
 	r.GET("/", handlers.HomeHandler)
 	r.POST("/login", handlers.LoginHandler)
 	r.POST("/signup", handlers.SignupHandler)
+	r.POST("/verify-otp", handlers.VerifyOtpHandler)
 
 	return r
 }
